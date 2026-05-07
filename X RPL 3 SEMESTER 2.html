@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Struktur Kelas - Lab Komputer</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --merah-primary: #c41e3a;
+            --merah-secondary: #8b0000;
+            --merah-light: #ff6b6b;
+            --putih: #ffffff;
+            --putih-soft: #f8f9fa;
+            --abu: #6c757d;
+            --hitam: #212529;
+            --shadow: rgba(196, 30, 58, 0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8e8e8 100%);
+            color: var(--hitam);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--merah-primary) 0%, var(--merah-secondary) 100%);
+            color: var(--putih);
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 20px var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            position: relative;
+        }
+
+        /* Navigation */
+        .nav {
+            background: var(--putih);
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            padding: 0.8rem 1.5rem;
+            border: 2px solid var(--merah-primary);
+            background: transparent;
+            color: var(--merah-primary);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn.nav-export {
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        .nav-btn.nav-export:hover {
+            background: #28a745;
+            color: var(--putih);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .nav-btn.nav-import {
+            border-color: #007bff;
+            color: #007bff;
+        }
+
+        .nav-btn.nav-import:hover {
+            background: #007bff;
+            color: var(--putih);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--merah-primary);
+            color: var(--putih);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .nav-export:hover, .nav-export.active {
+            background: #28a745 !important;
+            color: var(--putih) !important;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
+        }
+
+        .nav-import:hover, .nav-import.active {
+            background: #007bff !important;
+            color: var(--putih) !important;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3) !important;
+        }
+
+        /* Import Modal Progress */
+        .import-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .import-modal.active {
+            display: flex;
+        }
+
+        .import-modal-content {
+            background: var(--putih);
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+
+        .import-progress {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+        }
+
+        .import-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--merah-primary), var(--merah-light));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .import-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .import-stat {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .import-stat.success { background: #d4edda; color: #155724; }
+        .import-stat.error { background: #f8d7da; color: #721c24; }
+        .import-stat.info { background: #d1ecf1; color: #0c5460; }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--putih);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--merah-primary);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .card-title {
+            color: var(--merah-primary);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Struktur Kelas */
+        .struktur-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .jabatan-card {
+            background: linear-gradient(135deg, var(--putih) 0%, var(--putih-soft) 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .jabatan-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--merah-primary), var(--merah-light));
+        }
+
+        .jabatan-card:hover {
+            border-color: var(--merah-primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px var(--shadow);
+        }
+
+        .jabatan-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--merah-primary), var(--merah-secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: var(--putih);
+            font-size: 2rem;
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+
+        .jabatan-title {
+            color: var(--merah-primary);
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .jabatan-nama {
+            color: var(--hitam);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        /* Anggota Kelas */
+        .anggota-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .siswa-card {
+            background: var(--putih);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .siswa-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            border-color: var(--merah-primary);
+        }
+
+        .siswa-card.hadir {
+            border-color: #28a745;
+            background: linear-gradient(to bottom, #f8fff9 0%, var(--putih) 100%);
+        }
+
+        .siswa-card.tidak-hadir {
+            border-color: #dc3545;
+            background: linear-gradient(to bottom, #fff8f8 0%, var(--putih) 100%);
+            opacity: 0.8;
+        }
+
+        .siswa-foto {
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(135deg, #e0e0e0 0%, #f0f0f0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--abu);
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .siswa-foto img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .siswa-info {
+            padding: 0.8rem;
+            text-align: center;
+        }
+
+        .siswa-nama {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--hitam);
+            margin-bottom: 0.3rem;
+        }
+
+        .siswa-nim {
+            font-size: 0.8rem;
+            color: var(--abu);
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #dc3545;
+            border: 2px solid var(--putih);
+        }
+
+        .status-badge.hadir {
+            background: #28a745;
+        }
+
+        /* Upload Foto */
+        .upload-foto-trigger {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 28px;
+            height: 28px;
+            background: var(--merah-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.75rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 10;
+            transition: all 0.3s ease;
+            border: 2px solid white;
+        }
+
+        .upload-foto-trigger:hover {
+            transform: scale(1.15);
+            background: var(--merah-secondary);
+        }
+
+        .foto-preview-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .foto-preview-modal.active {
+            display: flex;
+        }
+
+        .foto-preview-modal img {
+            max-width: 80%;
+            max-height: 70vh;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .foto-preview-close {
+            background: var(--putih);
+            color: var(--hitam);
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .foto-preview-close:hover {
+            transform: scale(1.05);
+            background: var(--merah-primary);
+            color: var(--putih);
+        }
+
+        /* Absensi Controls */
+        .absensi-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--merah-primary);
+            color: var(--putih);
+        }
+
+        .btn-primary:hover {
+            background: var(--merah-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: var(--putih);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: var(--putih);
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            margin-left: auto;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--merah-primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--abu);
+        }
+
+        /* Lab Section */
+        .lab-hero {
+            background: linear-gradient(135deg, var(--merah-primary) 0%, var(--merah-secondary) 100%);
+            color: var(--putih);
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lab-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/></svg>');
+            opacity: 0.3;
+        }
+
+        .lab-hero h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .lab-hero p {
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            font-style: italic;
+        }
+
+        .lab-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .lab-item {
+            background: var(--putih);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .lab-item:hover {
+            transform: scale(1.02);
+        }
+
+        .lab-img {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(135deg, #e0e0e0 0%, #d0d0d0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--abu);
+            font-size: 4rem;
+            position: relative;
+        }
+
+        .lab-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .lab-content {
+            padding: 1.5rem;
+        }
+
+        .lab-content h3 {
+            color: var(--merah-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .quote-box {
+            background: var(--putih-soft);
+            border-left: 4px solid var(--merah-primary);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 10px 10px 0;
+            font-style: italic;
+            color: var(--hitam);
+            position: relative;
+        }
+
+        .quote-box::before {
+            content: '"';
+            font-size: 4rem;
+            color: var(--merah-primary);
+            opacity: 0.2;
+            position: absolute;
+            top: -10px;
+            left: 10px;
+        }
+
+        /* Social Media */
+        .social-section {
+            text-align: center;
+            padding: 3rem 0;
+        }
+
+        .social-grid {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .social-card {
+            background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: var(--putih);
+            padding: 1.5rem 3rem;
+            border-radius: 15px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(220, 39, 67, 0.3);
+        }
+
+        .social-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(220, 39, 67, 0.4);
+        }
+
+        .social-card i {
+            font-size: 2rem;
+        }
+
+        .social-info h3 {
+            margin-bottom: 0.2rem;
+        }
+
+        .social-info p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Contact WhatsApp */
+        .contact-section {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            color: var(--putih);
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+
+        .contact-section h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .contact-section p {
+            margin-bottom: 1.5rem;
+            position: relative;
+            opacity: 0.95;
+        }
+
+        .wa-btn {
+            background: var(--putih);
+            color: #25d366;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .wa-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--putih);
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-title {
+            color: var(--merah-primary);
+            margin-bottom: 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+        }
+
+        .modal-foto {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e0e0e0 0%, #f0f0f0 100%);
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--abu);
+            font-size: 3rem;
+            overflow: hidden;
+        }
+
+        .modal-foto img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--hitam);
+            color: var(--putih);
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .footer p {
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .struktur-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .anggota-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            
+            .stats {
+                width: 100%;
+                justify-content: center;
+                margin-top: 1rem;
+            }
+        }
+
+        /* Loading Animation */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <h1><i class="fas fa-graduation-cap"></i> X RPL 3</h1>
+        <p>Rekayasa Perangkat Lunak - Lab Komputer</p>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <button class="nav-btn active" onclick="showSection('struktur')">
+            <i class="fas fa-sitemap"></i> Struktur Kelas
+        </button>
+        <button class="nav-btn" onclick="showSection('anggota')">
+            <i class="fas fa-users"></i> Anggota (33)
+        </button>
+        <button class="nav-btn" onclick="showSection('absensi')">
+            <i class="fas fa-clipboard-check"></i> Absensi
+        </button>
+        <button class="nav-btn" onclick="showSection('lab')">
+            <i class="fas fa-laptop-code"></i> Lab Komputer
+        </button>
+        <button class="nav-btn" onclick="showSection('kontak')">
+            <i class="fas fa-address-book"></i> Kontak
+        </button>
+        <button class="nav-btn nav-export" onclick="exportFoto()">
+            <i class="fas fa-file-export"></i> Export Foto
+        </button>
+        <button class="nav-btn nav-import" onclick="document.getElementById('importFotoInput').click()">
+            <i class="fas fa-file-import"></i> Import Foto
+        </button>
+    </nav>
+
+    <div class="container">
+
+        <!-- Struktur Kelas Section -->
+        <section id="struktur" class="section active">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-users-cog"></i> Struktur Organisasi Kelas</h2>
+                
+                <div class="struktur-grid">
+                    <!-- Wali Kelas -->
+                    <div class="jabatan-card">
+                        <div class="jabatan-icon">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <div class="jabatan-title">Wali Kelas</div>
+                        <div class="jabatan-nama">Farih Fauzie</div>
+                        <small style="color: var(--abu);">Pembimbing Akademik</small>
+                    </div>
+
+                    <!-- Ketua Kelas -->
+                    <div class="jabatan-card">
+                        <div class="jabatan-icon">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <div class="jabatan-title">Ketua Kelas</div>
+                        <div class="jabatan-nama">M.Alfa Waid B</div>
+                        <small style="color: var(--abu);">Absen: 2</small>
+                    </div>
+
+                    <!-- Wakil Ketua -->
+                    <div class="jabatan-card">
+                        <div class="jabatan-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div class="jabatan-title">Wakil Ketua Kelas</div>
+                        <div class="jabatan-nama">M. Arfan Maulana</div>
+                        <small style="color: var(--abu);">Absen: 6</small>
+                    </div>
+
+                    <!-- Sekretaris 1 -->
+                    <div class="jabatan-card">
+                        <div class="jabatan-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="jabatan-title">Sekretaris 1</div>
+                        <div class="jabatan-nama">Nur Aini</div>
+                        <small style="color: var(--abu);">Absen: 15</small>
+                    </div>
+
+                    <!-- Sekretaris 2 -->
+                    <div class="jabatan-card">
+                        <div class="jabatan-icon">
+                            <i class="fas fa-file-signature"></i>
+                        </div>
+                        <div class="jabatan-title">Sekretaris 2</div>
+                        <div class="jabatan-nama">Vanda Rahmania Nur Ramadani</div>
+                        <small style="color: var(--abu);">Absen: 30</small>
+                    </div>
+
+                    <!-- Bendahara 1 -->
+                    <div class="jabatan-card">
+                        <div class="jabatan-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="jabatan-title">Bendahara 1</div>
+                        <div class="jabatan-nama">Putri Ayu Keysa</div>
+                        <small style="color: var(--abu);">Absen: 18</small>
+                    </div>
+
+                    <!-- Bendahara 2 -->
+                    <div class="jabatan-card">
+                        <div class="jabatan-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="jabatan-title">Bendahara 2</div>
+                        <div class="jabatan-nama">Ridail Afkarina</div>
+                        <small style="color: var(--abu);">Absen: 22</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Anggota Kelas Section -->
+        <section id="anggota" class="section">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-users"></i> Daftar Anggota Kelas</h2>
+                <p style="margin-bottom: 1rem; color: var(--abu);">Total 33 siswa - Klik pada kartu untuk melihat detail. Klik icon kamera untuk upload foto.</p>
+                
+                <div class="anggota-grid" id="anggotaGrid">
+                    <!-- Generated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Absensi Section -->
+        <section id="absensi" class="section">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-clipboard-list"></i> Sistem Absensi Kelas</h2>
+                
+                <div class="absensi-controls">
+                    <button class="btn btn-success" onclick="setAllHadir()">
+                        <i class="fas fa-check-circle"></i> Semua Hadir
+                    </button>
+                    <button class="btn btn-danger" onclick="resetAbsensi()">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                    <button class="btn btn-primary" onclick="exportAbsensi()">
+                        <i class="fas fa-download"></i> Export Data
+                    </button>
+                    
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="countHadir">0</div>
+                            <div class="stat-label">Hadir</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="countTidakHadir">0</div>
+                            <div class="stat-label">Tidak Hadir</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="countTotal">33</div>
+                            <div class="stat-label">Total</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="anggota-grid" id="absensiGrid">
+                    <!-- Generated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Lab Komputer Section -->
+        <section id="lab" class="section">
+            <div class="lab-hero">
+                <h2><i class="fas fa-server"></i> Lab Komputer & Jaringan</h2>
+                <p>"Teknologi adalah jembatan menuju masa depan. Di lab ini, kita tidak hanya belajar coding, tapi membangun fondasi digital Indonesia."</p>
+            </div>
+
+            <div class="quote-box">
+                <strong>Visi Lab:</strong> Mencetak generasi programmer handal yang siap bersaing di era industri 4.0, dengan fasilitas komputer spek tinggi dan jaringan server yang stabil untuk mendukung pembelajaran praktis.
+            </div>
+
+            <div class="lab-gallery">
+                <div class="lab-item">
+                    <div class="lab-img">
+                        <i class="fas fa-laptop"></i>
+                        <!-- Ganti dengan: <img src="foto-lab.jpg" alt="Lab Komputer"> -->
+                    </div>
+                    <div class="lab-content">
+                        <h3>Ruang Lab Utama</h3>
+                        <p>Dilengkapi dengan 40 unit komputer dengan spesifikasi Intel Core i5, RAM 16GB, SSD 512GB, dan monitor 24 inch untuk kenyamanan coding.</p>
+                    </div>
+                </div>
+
+                <div class="lab-item">
+                    <div class="lab-img">
+                        <i class="fas fa-server"></i>
+                        <!-- Ganti dengan: <img src="foto-server.jpg" alt="Server Room"> -->
+                    </div>
+                    <div class="lab-content">
+                        <h3>Server Room</h3>
+                        <p>Ruang server dengan sistem pendingin khusus, UPS backup power, dan jaringan fiber optic 1Gbps untuk kebutuhan development dan hosting lokal.</p>
+                    </div>
+                </div>
+
+                <div class="lab-item">
+                    <div class="lab-img">
+                        <i class="fas fa-network-wired"></i>
+                        <!-- Ganti dengan: <img src="foto-jaringan.jpg" alt="Jaringan"> -->
+                    </div>
+                    <div class="lab-content">
+                        <h3>Infrastruktur Jaringan</h3>
+                        <p>Topologi jaringan star configuration dengan Cisco switch managed, VLAN segmentation, dan firewall protection untuk keamanan data.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3 class="card-title"><i class="fas fa-quote-left"></i> Kata-kata Inspiratif</h3>
+                <div style="display: grid; gap: 1rem;">
+                    <div style="padding: 1rem; background: #f8f9fa; border-radius: 10px; border-left: 4px solid var(--merah-primary);">
+                        <em>"Programmer yang baik bukan yang tidak pernah membuat error, tapi yang tahu cara memperbaikinya."</em>
+                    </div>
+                    <div style="padding: 1rem; background: #f8f9fa; border-radius: 10px; border-left: 4px solid var(--merah-primary);">
+                        <em>"Jaringan yang kuat bukan hanya tentang kabel dan router, tapi tentang kolaborasi dan berbagi ilmu."</em>
+                    </div>
+                    <div style="padding: 1rem; background: #f8f9fa; border-radius: 10px; border-left: 4px solid var(--merah-primary);">
+                        <em>"Setiap baris code adalah investasi untuk masa depan teknologi Indonesia."</em>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Kontak Section -->
+        <section id="kontak" class="section">
+            <div class="social-section">
+                <h2 style="color: var(--merah-primary); margin-bottom: 0.5rem;">Ikuti Kami di Media Sosial</h2>
+                <p style="color: var(--abu);">Dapatkan update terbaru dari kegiatan kelas kami</p>
+                
+                <div class="social-grid">
+                    <a href="https://www.instagram.com/rpl3_officiall?igsh=N2RtbDJoMjZyajVo" target="_blank" class="social-card">
+                        <i class="fab fa-instagram"></i>
+                        <div class="social-info">
+                            <h3>@rpl3_officiall</h3>
+                            <p>Follow untuk lihat aktivitas kami</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="contact-section">
+                <h2><i class="fab fa-whatsapp"></i> Hubungi Kami</h2>
+                <p>Ada pertanyaan tentang kelas atau ingin berkolaborasi? Chat kami langsung via WhatsApp!</p>
+                
+                <a href="https://wa.me/6285702610783?text=Halo+X+RPL+3" class="wa-btn pulse" target="_blank">
+                    <i class="fab fa-whatsapp fa-lg"></i>
+                    Chat via WhatsApp
+                </a>
+                
+                <p style="margin-top: 1.5rem; font-size: 0.9rem; opacity: 0.9;">
+                    <i class="fas fa-phone"></i> +62 857-0261-0783 (Ketua Kelas)<br>
+                    <i class="fas fa-envelope"></i> smkn6.jember@yahoo.com
+                </p>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3 class="card-title"><i class="fas fa-map-marker-alt"></i> Alamat Sekolah</h3>
+                <div style="background: #f0f0f0; height: 300px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--abu); flex-direction: column; gap: 1rem;">
+                    <i class="fas fa-map fa-3x"></i>
+                    <p>SMK Negeri 6 Jember<br>Jl. PB.Sudirman No.144 Tanggul-Jember</p>
+                    <small>Embed Google Maps di sini</small>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Hidden File Input untuk Upload Foto -->
+    <input type="file" id="fotoInput" accept="image/*" style="display: none;" onchange="handleFotoUpload(event)">
+
+    <!-- Hidden File Input untuk Import Foto -->
+    <input type="file" id="importFotoInput" accept=".json" style="display: none;" onchange="handleImportFoto(event)">
+
+    <!-- Modal untuk Import Progress -->
+    <div class="import-modal" id="importModal">
+        <div class="import-modal-content">
+            <h3 class="modal-title"><i class="fas fa-file-import"></i> Import Data Foto</h3>
+            <p id="importStatusText">Membaca file...</p>
+            <div class="import-progress">
+                <div class="import-progress-bar" id="importProgressBar"></div>
+            </div>
+            <div class="import-stats" id="importStats"></div>
+            <button class="btn btn-primary" onclick="closeImportModal()" id="importCloseBtn" style="margin-top: 1rem; display: none;">
+                <i class="fas fa-check"></i> Tutup
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal untuk Absensi -->
+    <div class="modal" id="absensiModal">
+        <div class="modal-content">
+            <div class="modal-foto" id="modalFoto">
+                <i class="fas fa-user"></i>
+            </div>
+            <h3 class="modal-title">Konfirmasi Kehadiran</h3>
+            <p id="modalSiswaName">Nama Siswa</p>
+            <div class="modal-actions">
+                <button class="btn btn-success" onclick="confirmHadir()">
+                    <i class="fas fa-check"></i> Hadir
+                </button>
+                <button class="btn btn-danger" onclick="confirmTidakHadir()">
+                    <i class="fas fa-times"></i> Tidak Hadir
+                </button>
+                <button class="btn" onclick="closeModal()" style="background: var(--abu); color: white;">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Preview Foto -->
+    <div class="foto-preview-modal" id="fotoPreviewModal" onclick="closeFotoPreview()">
+        <img id="fotoPreviewImg" src="" alt="Preview" onclick="event.stopPropagation()">
+        <button class="foto-preview-close" onclick="closeFotoPreview()">
+            <i class="fas fa-times"></i> Tutup
+        </button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 X RPL 3 - Lab Komputer SMK Negeri 6 Jember. All rights reserved.</p>
+        <p style="margin-top: 0.5rem; font-size: 0.9rem;">Dibuat dengan <i class="fas fa-heart" style="color: var(--merah-primary);"></i> oleh Firnanda</p>
+    </footer>
+
+    <script>
+        // Data 33 Siswa
+        const siswaData = [
+            { id: 1, nama: "Agung Boy Pratama", nim: "1", jabatan: "Anggota" },
+            { id: 2, nama: "M.Alfa Waid B", nim: "2", jabatan: "Ketua Kelas" },
+            { id: 3, nama: "M. Masrur", nim: "3", jabatan: "Anggota" },
+            { id: 4, nama: "M. Ramadhana", nim: "4", jabatan: "Anggota" },
+            { id: 5, nama: "Miftahur Rzky", nim: "5", jabatan: "Anggota" },
+            { id: 6, nama: "M.Arfan Maulana", nim: "6", jabatan: "Wakil Ketua Kelas" },
+            { id: 7, nama: "M. Al-Hadi", nim: "7", jabatan: "Anggota" },
+            { id: 8, nama: "M. Firnanda", nim: "8", jabatan: "Anggota" },
+            { id: 9, nama: "Muhammad iqbal nahdli", nim: "9", jabatan: "Anggota" },
+            { id: 10, nama: "M. Kafa", nim: "10", jabatan: "Anggota" },
+            { id: 11, nama: "M. Rofiki", nim: "11", jabatan: "Anggota" },
+            { id: 12, nama: "M. Yusril Multazam", nim: "12", jabatan: "Anggota" },
+            { id: 13, nama: "Natasya A.P", nim: "13", jabatan: "Anggota" },
+            { id: 14, nama: "Nofal Maulana", nim: "14", jabatan: "Anggota" },
+            { id: 15, nama: "Nur Aini", nim: "15", jabatan: "Sekertaris 1" },
+            { id: 16, nama: "Oca Febrian S.", nim: "16", jabatan: "Anggota" },
+            { id: 17, nama: "Ozil Sabian", nim: "17", jabatan: "Anggota" },
+            { id: 18, nama: "Putri Ayu Keysa", nim: "18", jabatan: "Bendahara 1" },
+            { id: 19, nama: "Raditya S.", nim: "19", jabatan: "Anggota" },
+            { id: 20, nama: "Ramadhan F.", nim: "20", jabatan: "Anggota" },
+            { id: 21, nama: "Ridail Afkarina", nim: "21", jabatan: "Bendahara 2" },
+            { id: 22, nama: "Ridwan Maulana", nim: "22", jabatan: "Anggota" },
+            { id: 23, nama: "Rindi Sahwal A.", nim: "23", jabatan: "Anggota" },
+            { id: 24, nama: "Riki Muhammad A.W", nim: "2024024", jabatan: "Anggota" },
+            { id: 25, nama: "Rizki Maulana", nim: "25", jabatan: "Anggota" },
+            { id: 26, nama: "Safa Azzahra", nim: "26", jabatan: "Anggota" },
+            { id: 27, nama: "Shakila Nanda A.", nim: "27", jabatan: "Anggota" },
+            { id: 28, nama: "Siti Jahrotun Nisa", nim: "28", jabatan: "Anggota" },
+            { id: 29, nama: "Syahruli", nim: "29", jabatan: "Anggota" },
+            { id: 30, nama: "Vanda Rahmania N.R", nim: "30", jabatan: "Sekertaris 2" },
+            { id: 31, nama: "Wildan Mubassyir A.", nim: "31", jabatan: "Anggota" },
+            { id: 32, nama: "Wildan Nizam P.", nim: "32", jabatan: "Anggota" },
+            { id: 33, nama: "Zah Muda Adillah", nim: "33", jabatan: "Anggota" }
+        ];
+
+        // State Absensi
+        let absensiState = {};
+        let selectedSiswa = null;
+        let currentUploadId = null;
+
+        // Inisialisasi
+        document.addEventListener('DOMContentLoaded', function() {
+            renderAnggota();
+            renderAbsensi();
+        });
+
+        // Navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.closest('.nav-btn').classList.add('active');
+        }
+
+        // ==================== FUNGSI EXPORT & IMPORT FOTO ====================
+
+        // Export semua foto ke file JSON
+        function exportFoto() {
+            const data = {
+                exportDate: new Date().toISOString(),
+                className: "X RPL 3",
+                version: "1.0",
+                photos: {},
+                absensi: absensiState
+            };
+
+            let photoCount = 0;
+
+            // Ambil semua foto dari localStorage
+            siswaData.forEach(siswa => {
+                const foto = localStorage.getItem(`siswa_foto_${siswa.id}`);
+                if (foto) {
+                    data.photos[siswa.id] = {
+                        nama: siswa.nama,
+                        nim: siswa.nim,
+                        base64: foto
+                    };
+                    photoCount++;
+                }
+            });
+
+            if (photoCount === 0) {
+                alert('Tidak ada foto untuk diexport. Silakan upload foto terlebih dahulu di menu Anggota atau Absensi.');
+                return;
+            }
+
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Foto_X_RPL3_${new Date().toLocaleDateString('id-ID').replace(/\//g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            alert(`Berhasil export ${photoCount} foto ke file JSON!\n\nSimpan file ini dengan aman. Jika foto hilang di perangkat lain, gunakan tombol "Import Foto" untuk mengembalikannya.`);
+        }
+
+        // Handle import foto dari file JSON
+        function handleImportFoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validasi tipe file
+            if (!file.name.endsWith('.json')) {
+                alert('Mohon pilih file JSON hasil export!');
+                event.target.value = '';
+                return;
+            }
+
+            // Tampilkan modal progress
+            const modal = document.getElementById('importModal');
+            const progressBar = document.getElementById('importProgressBar');
+            const statusText = document.getElementById('importStatusText');
+            const statsDiv = document.getElementById('importStats');
+            const closeBtn = document.getElementById('importCloseBtn');
+
+            modal.classList.add('active');
+            progressBar.style.width = '0%';
+            statusText.textContent = 'Membaca file...';
+            statsDiv.innerHTML = '';
+            closeBtn.style.display = 'none';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    if (!data.photos || typeof data.photos !== 'object') {
+                        throw new Error('Format file tidak valid. Pastikan ini adalah file hasil export.');
+                    }
+
+                    const photoIds = Object.keys(data.photos);
+                    const total = photoIds.length;
+                    let successCount = 0;
+                    let errorCount = 0;
+                    let skipCount = 0;
+
+                    statusText.textContent = `Mengimport ${total} foto...`;
+
+                    // Proses import satu per satu dengan delay agar UI terupdate
+                    let index = 0;
+
+                    function processNext() {
+                        if (index >= total) {
+                            // Selesai
+                            progressBar.style.width = '100%';
+                            statusText.textContent = `Import selesai! ${successCount} foto berhasil, ${errorCount} gagal, ${skipCount} dilewati.`;
+                            statsDiv.innerHTML = `
+                                <div class="import-stat success"><i class="fas fa-check"></i> ${successCount} Berhasil</div>
+                                <div class="import-stat error"><i class="fas fa-times"></i> ${errorCount} Gagal</div>
+                                <div class="import-stat info"><i class="fas fa-forward"></i> ${skipCount} Dilewati</div>
+                            `;
+                            closeBtn.style.display = 'inline-flex';
+
+                            // Update tampilan
+                            renderAnggota();
+                            renderAbsensi();
+                            return;
+                        }
+
+                        const id = photoIds[index];
+                        const photoData = data.photos[id];
+                        const percent = Math.round(((index + 1) / total) * 100);
+
+                        try {
+                            // Cek apakah foto sudah ada (skip jika ada dan sama)
+                            const existing = localStorage.getItem(`siswa_foto_${id}`);
+                            if (existing && existing === photoData.base64) {
+                                skipCount++;
+                            } else {
+                                localStorage.setItem(`siswa_foto_${id}`, photoData.base64);
+                                successCount++;
+                            }
+                        } catch (err) {
+                            errorCount++;
+                            console.error(`Gagal import foto ID ${id}:`, err);
+                        }
+
+                        progressBar.style.width = `${percent}%`;
+                        statusText.textContent = `Mengimport ${index + 1} dari ${total} foto...`;
+                        index++;
+
+                        // Delay kecil agar progress bar terlihat
+                        setTimeout(processNext, 50);
+                    }
+
+                    processNext();
+
+                    // Restore absensi state jika ada
+                    if (data.absensi && typeof data.absensi === 'object') {
+                        absensiState = { ...absensiState, ...data.absensi };
+                    }
+
+                } catch (err) {
+                    progressBar.style.width = '100%';
+                    statusText.textContent = 'Gagal membaca file: ' + err.message;
+                    statsDiv.innerHTML = `<div class="import-stat error"><i class="fas fa-exclamation-triangle"></i> Format file tidak valid</div>`;
+                    closeBtn.style.display = 'inline-flex';
+                }
+            };
+
+            reader.onerror = function() {
+                statusText.textContent = 'Gagal membaca file.';
+                statsDiv.innerHTML = `<div class="import-stat error"><i class="fas fa-exclamation-triangle"></i> Gagal membaca file</div>`;
+                closeBtn.style.display = 'inline-flex';
+            };
+
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').classList.remove('active');
+        }
+
+        // ==================== FUNGSI FOTO ====================
+
+        // Ambil foto dari localStorage
+        function getFotoSiswa(id) {
+            return localStorage.getItem(`siswa_foto_${id}`);
+        }
+
+        // Trigger upload foto
+        function triggerUpload(siswaId) {
+            currentUploadId = siswaId;
+            document.getElementById('fotoInput').click();
+        }
+
+        // Handle file upload
+        function handleFotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file || !currentUploadId) return;
+
+            // Validasi tipe file
+            if (!file.type.startsWith('image/')) {
+                alert('Mohon pilih file gambar (JPG, PNG, dll)!');
+                event.target.value = '';
+                return;
+            }
+
+            // Validasi ukuran file (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Ukuran file terlalu besar! Maksimal 5MB.');
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_SIZE = 400;
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Hitung ratio resize
+                    if (width > height) {
+                        if (width > MAX_SIZE) {
+                            height *= MAX_SIZE / width;
+                            width = MAX_SIZE;
+                        }
+                    } else {
+                        if (height > MAX_SIZE) {
+                            width *= MAX_SIZE / height;
+                            height = MAX_SIZE;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#f0f0f0';
+                    ctx.fillRect(0, 0, width, height);
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Compress ke JPEG dengan kualitas 0.7
+                    const base64 = canvas.toDataURL('image/jpeg', 0.7);
+
+                    // Simpan ke localStorage
+                    try {
+                        localStorage.setItem(`siswa_foto_${currentUploadId}`, base64);
+
+                        // Update tampilan
+                        renderAnggota();
+                        renderAbsensi();
+
+                        // Update foto di modal jika sedang terbuka
+                        updateModalFoto(currentUploadId);
+
+                        alert('Foto berhasil disimpan secara permanen!');
+                    } catch (err) {
+                        alert('Gagal menyimpan foto. Storage mungkin penuh. Coba hapus beberapa foto lama atau gunakan foto dengan ukuran lebih kecil.');
+                        console.error('LocalStorage error:', err);
+                    }
+
+                    currentUploadId = null;
+                    event.target.value = '';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Preview foto besar
+        function previewFoto(siswaId) {
+            const foto = getFotoSiswa(siswaId);
+            if (!foto) return;
+
+            document.getElementById('fotoPreviewImg').src = foto;
+            document.getElementById('fotoPreviewModal').classList.add('active');
+        }
+
+        function closeFotoPreview() {
+            document.getElementById('fotoPreviewModal').classList.remove('active');
+            document.getElementById('fotoPreviewImg').src = '';
+        }
+
+        // Update foto di modal absensi
+        function updateModalFoto(siswaId) {
+            const foto = getFotoSiswa(siswaId);
+            const modalFoto = document.getElementById('modalFoto');
+            if (foto) {
+                modalFoto.innerHTML = `<img src="${foto}" alt="Foto">`;
+            } else {
+                modalFoto.innerHTML = '<i class="fas fa-user"></i>';
+            }
+        }
+
+        // ==================== RENDER ANGGOTA ====================
+
+        function renderAnggota() {
+            const grid = document.getElementById('anggotaGrid');
+            grid.innerHTML = siswaData.map(siswa => {
+                const foto = getFotoSiswa(siswa.id);
+                return `
+                    <div class="siswa-card">
+                        <div class="siswa-foto" style="position: relative;">
+                            ${foto 
+                                ? `<img src="${foto}" alt="${siswa.nama}" style="cursor: zoom-in;" onclick="event.stopPropagation(); previewFoto(${siswa.id})">` 
+                                : `<i class="fas fa-user"></i>`
+                            }
+                            <div class="upload-foto-trigger" onclick="event.stopPropagation(); triggerUpload(${siswa.id})" title="Upload/Update Foto">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                        <div class="siswa-info" onclick="showSiswaDetail(${siswa.id})">
+                            <div class="siswa-nama">${siswa.nama}</div>
+                            <div class="siswa-nim">${siswa.nim}</div>
+                            <small style="color: var(--merah-primary);">${siswa.jabatan}</small>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==================== RENDER ABSENSI ====================
+
+        function renderAbsensi() {
+            const grid = document.getElementById('absensiGrid');
+            grid.innerHTML = siswaData.map(siswa => {
+                const status = absensiState[siswa.id] || 'belum';
+                const statusClass = status === 'hadir' ? 'hadir' : status === 'tidak' ? 'tidak-hadir' : '';
+                const badgeClass = status === 'hadir' ? 'hadir' : '';
+                const foto = getFotoSiswa(siswa.id);
+                
+                return `
+                    <div class="siswa-card ${statusClass}" onclick="openAbsensiModal(${siswa.id})">
+                        <div class="siswa-foto" style="position: relative;">
+                            ${foto 
+                                ? `<img src="${foto}" alt="${siswa.nama}">` 
+                                : `<i class="fas fa-user"></i>`
+                            }
+                            ${status !== 'belum' ? `<div class="status-badge ${badgeClass}"></div>` : ''}
+                            <div class="upload-foto-trigger" onclick="event.stopPropagation(); triggerUpload(${siswa.id})" title="Upload/Update Foto">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                        <div class="siswa-info">
+                            <div class="siswa-nama">${siswa.nama}</div>
+                            <div class="siswa-nim">${siswa.nim}</div>
+                            <small style="color: ${status === 'hadir' ? '#28a745' : status === 'tidak' ? '#dc3545' : 'var(--abu)'};">
+                                ${status === 'hadir' ? '<i class="fas fa-check"></i> Hadir' : status === 'tidak' ? '<i class="fas fa-times"></i> Tidak Hadir' : 'Belum Absen'}
+                            </small>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            updateStats();
+        }
+
+        // ==================== MODAL FUNCTIONS ====================
+
+        function openAbsensiModal(id) {
+            selectedSiswa = siswaData.find(s => s.id === id);
+            document.getElementById('modalSiswaName').textContent = selectedSiswa.nama + ' (' + selectedSiswa.nim + ')';
+            
+            // Update foto di modal
+            updateModalFoto(id);
+            
+            document.getElementById('absensiModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('absensiModal').classList.remove('active');
+            selectedSiswa = null;
+        }
+
+        function confirmHadir() {
+            if (selectedSiswa) {
+                absensiState[selectedSiswa.id] = 'hadir';
+                renderAbsensi();
+                closeModal();
+            }
+        }
+
+        function confirmTidakHadir() {
+            if (selectedSiswa) {
+                absensiState[selectedSiswa.id] = 'tidak';
+                renderAbsensi();
+                closeModal();
+            }
+        }
+
+        // ==================== ABSENSI CONTROLS ====================
+
+        function setAllHadir() {
+            siswaData.forEach(s => absensiState[s.id] = 'hadir');
+            renderAbsensi();
+        }
+
+        function resetAbsensi() {
+            absensiState = {};
+            renderAbsensi();
+        }
+
+        function updateStats() {
+            const hadir = Object.values(absensiState).filter(v => v === 'hadir').length;
+            const tidak = Object.values(absensiState).filter(v => v === 'tidak').length;
+            
+            document.getElementById('countHadir').textContent = hadir;
+            document.getElementById('countTidakHadir').textContent = tidak;
+        }
+
+        function exportAbsensi() {
+            const tanggal = new Date().toLocaleDateString('id-ID');
+            const hadir = siswaData.filter(s => absensiState[s.id] === 'hadir').map(s => s.nama);
+            const tidak = siswaData.filter(s => absensiState[s.id] === 'tidak').map(s => s.nama);
+            const belum = siswaData.filter(s => !absensiState[s.id]).map(s => s.nama);
+            
+            const data = `
+LAPORAN ABSENSI KELAS X RPL 3
+Tanggal: ${tanggal}
+
+HADIR (${hadir.length}):
+${hadir.join('\n') || '-'}
+
+TIDAK HADIR (${tidak.length}):
+${tidak.join('\n') || '-'}
+
+BELUM ABSEN (${belum.length}):
+${belum.join('\n') || '-'}
+            `.trim();
+            
+            const blob = new Blob([data], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Absensi_X_RPL3_${tanggal.replace(/\//g, '-')}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            alert('Data absensi berhasil diexport!');
+        }
+
+        function showSiswaDetail(id) {
+            const siswa = siswaData.find(s => s.id === id);
+            const foto = getFotoSiswa(id);
+            
+            let fotoInfo = foto ? '\n✅ Foto: Sudah diupload' : '\n❌ Foto: Belum ada';
+            
+            alert(`Detail Siswa:\n\nNama: ${siswa.nama}\nNIS: ${siswa.nim}\nJabatan: ${siswa.jabatan}${fotoInfo}\n\nKlik icon kamera pada kartu untuk upload foto. Klik menu Absensi untuk mencatat kehadiran.`);
+        }
+
+        // Close modal on outside click
+        document.getElementById('absensiModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    </script>
+
+</body>
+</html>
